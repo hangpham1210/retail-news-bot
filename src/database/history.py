@@ -112,3 +112,50 @@ def save_news(news):
 
     conn.commit()
     conn.close()
+
+
+def get_unsent_news():
+    """Trả về các bài đã lưu nhưng chưa được gửi tới Telegram."""
+
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT id, title, link, source, category, importance, summary, tags
+        FROM news_history
+        WHERE sent = 0
+        ORDER BY id ASC
+        """
+    )
+
+    news = []
+    for row in cursor.fetchall():
+        article = dict(row)
+        for field in ("summary", "tags"):
+            try:
+                article[field] = json.loads(article[field] or "[]")
+            except json.JSONDecodeError:
+                article[field] = article[field] or []
+        news.append(article)
+
+    conn.close()
+    return news
+
+
+def mark_as_sent(news):
+    """Đánh dấu các bài đã được Telegram nhận thành công."""
+
+    ids = [article["id"] for article in news if article.get("id") is not None]
+    if not ids:
+        return
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.executemany(
+        "UPDATE news_history SET sent = 1 WHERE id = ?",
+        [(article_id,) for article_id in ids],
+    )
+    conn.commit()
+    conn.close()

@@ -12,6 +12,25 @@ client = genai.Client(
 )
 
 
+def fallback_summary(article):
+    """Tạo dữ liệu tối thiểu để bài vẫn có thể được gửi khi AI lỗi."""
+
+    content = " ".join(article.get("content", "").split())
+    excerpt = content[:300].rsplit(" ", 1)[0] if content else article["title"]
+
+    return {
+        "summary": [excerpt] if excerpt else [],
+        "importance": 0,
+        "reason": "Gemini hiện không khả dụng; xem bài gốc để biết chi tiết.",
+        "tags": [],
+    }
+
+
+def is_quota_error(error):
+    message = str(error).lower()
+    return "resource_exhausted" in message or "quota exceeded" in message
+
+
 def summarize_article(article):
     """
     Tóm tắt 1 bài báo bằng Gemini.

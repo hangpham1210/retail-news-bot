@@ -1,4 +1,5 @@
 from config.news_sources import NEWS_SOURCES
+from config.settings import MAX_NEWS_PER_FEED
 
 import feedparser
 import trafilatura
@@ -50,7 +51,8 @@ def crawl_source(source):
 
     results = []
 
-    for entry in feed.entries:
+    # Không tải toàn bộ RSS (có thể hàng chục bài) trong một lần chạy.
+    for entry in feed.entries[:MAX_NEWS_PER_FEED]:
 
         link = entry.get("link", "")
 

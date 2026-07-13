@@ -12,8 +12,8 @@ def parse_news(item: dict) -> dict:
 
         "title": item.get("title", "").strip(),
 
-        # RSS summary dùng làm nội dung ban đầu
-        "content": item.get("summary", "").strip(),
+        # Dùng toàn văn do crawler lấy được; chỉ dùng RSS summary khi không có.
+        "content": item.get("content") or item.get("summary", "").strip(),
 
         # topic mặc định
         "topic": item.get("category", ""),
