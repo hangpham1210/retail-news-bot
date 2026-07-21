@@ -129,7 +129,5 @@ async def send_news(news):
 
         if sent:
             print(f"✅ Đã gửi Telegram phần {part_number}/{len(batches)}")
-            # Chỉ đánh dấu các bài thuộc phần đã được Telegram nhận thành công.
-            mark_as_sent(batch)
 
         start_index += len(batch)
